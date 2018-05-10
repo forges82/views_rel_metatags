@@ -1,0 +1,52 @@
+<?php
+
+function views_rel_metatags_views_pre_render(&$view) {
+
+    if($view->display_handler->plugin_name == 'page') {
+        if($view->use_ajax == FALSE) {
+            // dpm($view);
+            // dpm($args);
+            $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
+            $parameters = drupal_get_query_parameters();
+            $uri_parts = explode('?', $_SERVER['REQUEST_URI'], 2);
+            if(isset($parameters['page'])) {
+                $page = $parameters['page'];
+                $page_ant = $page-1;
+                if($page_ant == 0) {
+                    drupal_add_html_head_link(array('rel' => 'prev', 'href' => $protocol . $_SERVER['HTTP_HOST']. $uri_parts[0]));
+                }
+                else {
+                    drupal_add_html_head_link(array('rel' => 'prev', 'href' => $protocol . $_SERVER['HTTP_HOST']. $uri_parts[0] .'?page='.$page_ant));
+                }
+
+            }
+            else {
+                $page = 0;
+            }
+            $page_prox = $page+1;
+
+            drupal_add_html_head_link(array('rel' => 'canonical', 'href' => $protocol. '/' . $_SERVER['HTTP_HOST'] . request_uri()));
+
+            $current_page = $view->query->pager->current_page;
+            $total_items = $view->query->pager->total_items;
+            $items_per_page = $view->query->pager->options['items_per_page'];
+
+            $total_page = ($current_page+1)*$items_per_page;
+            /*dpm($total_page);
+            dpm($items_per_page);
+            dpm($total_items);*/
+            if($total_page < $total_items) {
+                // dpm('si');
+                drupal_add_html_head_link(array('rel' => 'next', 'href' => $protocol . $_SERVER['HTTP_HOST']. $uri_parts[0] .'?page='.$page_prox));
+            }
+
+            /*
+            unset($view->query->pager->view);
+            unset($view->query->pager->display);
+            echo '<pre>';
+            print_r($view->query->pager);
+            echo '</pre>'; */
+        }
+    }
+
+}

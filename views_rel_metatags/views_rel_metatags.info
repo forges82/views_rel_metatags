@@ -1,0 +1,6 @@
+name = views_rel_metatags
+description = Add pagination rel metatags for views
+core = 7.x
+
+package = Views
+dependencies[] = views:views
